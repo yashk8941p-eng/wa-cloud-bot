@@ -1,15 +1,11 @@
 const { default: makeWASocket, useMultiFileAuthState, downloadMediaMessage, DisconnectReason } = require('@whiskeysockets/baileys');
 const pino = require('pino');
 const express = require('express');
-const readline = require('readline');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 app.get('/', (req, res) => res.send('WA Bot is Alive & Running!'));
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-
-const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
-const question = (text) => new Promise((resolve) => rl.question(text, resolve));
 
 async function startBot() {
     const { state, saveCreds } = await useMultiFileAuthState('auth_session');
@@ -22,8 +18,9 @@ async function startBot() {
     });
 
     if (!sock.authState.creds.registered) {
-        const phoneNumber = await question('📱 Apna WhatsApp Number daalein (91 ke sath, bina + ke): ');
-        const code = await sock.requestPairingCode(phoneNumber.trim());
+        // Yahan apna WhatsApp number 91 ke sath likhein (jaise: 918941048044)
+        const phoneNumber = "918941048044"; 
+        const code = await sock.requestPairingCode(phoneNumber);
         console.log(`\n========================================`);
         console.log(`🔑 AAPKA PAIRING CODE: ${code}`);
         console.log(`========================================\n`);
