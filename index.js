@@ -1,12 +1,15 @@
 const { default: makeWASocket, useMultiFileAuthState, downloadMediaMessage, DisconnectReason } = require('@whiskeysockets/baileys');
 const pino = require('pino');
 const express = require('express');
+const readline = require('readline');
 
-// Render / Cloud server ko zinda rakhne ke liye chhota sa Express web server
 const app = express();
 const PORT = process.env.PORT || 3000;
 app.get('/', (req, res) => res.send('WA Bot is Alive & Running!'));
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+const question = (text) => new Promise((resolve) => rl.question(text, resolve));
 
 async function startBot() {
     const { state, saveCreds } = await useMultiFileAuthState('auth_session');
@@ -19,8 +22,11 @@ async function startBot() {
     });
 
     if (!sock.authState.creds.registered) {
-        // Cloud par number automatic nahi daal sakte, isliye hum default pairing code ya logs use karenge
-        console.log('👉 Bot waiting for connection...');
+        const phoneNumber = await question('📱 Apna WhatsApp Number daalein (91 ke sath, bina + ke): ');
+        const code = await sock.requestPairingCode(phoneNumber.trim());
+        console.log(`\n========================================`);
+        console.log(`🔑 AAPKA PAIRING CODE: ${code}`);
+        console.log(`========================================\n`);
     }
 
     sock.ev.on('creds.update', saveCreds);
